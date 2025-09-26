@@ -60,8 +60,13 @@ export function AssignmentTwo() {
   const handleChangeSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     const previousSearch = search;
-    if (newValue.length <= 0 || (newValue.length > previousSearch.length && previousSearch.length > 0 && filteredData.length <= 0)) {
+    if (newValue.length <= 0) {
     setSearch(newValue);
+      setFilteredData(products);
+      return;
+    }
+    if (newValue.length > previousSearch.length && previousSearch.length > 0 && filteredData.length <= 0) {
+      setSearch(newValue);
       setFilteredData([]);
       return;
     }
@@ -83,6 +88,7 @@ export function AssignmentTwo() {
     const productsData = await responses[1].json();
     setUsers(usersData.users);
     setProducts(productsData.products);
+    setFilteredData(productsData.products);
     } catch (error) {
       console.error('[AssignmentTwo] Error fetching data', error);
     }
@@ -97,21 +103,25 @@ export function AssignmentTwo() {
 
   return (
     <div className="flex flex-col items-center p-8 gap-8 h-screen">
-      <input className="border-2 border-gray-300 rounded-md p-2 disabled:opacity-50" type="text" onChange={handleChangeSearch} placeholder="Search" disabled={loading || !hasValidData} />
-      <WillRender when={loading}>Loading fetching data...</WillRender>
+      <div className="flex justify-between w-full"><input className="border-2 border-gray-300 rounded-md p-2 disabled:opacity-50" type="text" onChange={handleChangeSearch} placeholder="Search" disabled={loading || !hasValidData} />
+      <div><WillRender when={loading}>Loading fetching data...</WillRender>
       <WillRender when={!loading}>
         <WillRender when={hasSearch}>
           <WillRender when={isPending}>Pending filtering...</WillRender>
           <WillRender when={!isPending}>
           <WillRender when={!hasFilteredData}>No filtered data found</WillRender>
-          <WillRender when={hasFilteredData}><FilterList products={filteredData} users={users} likeObject={likeObject} isPendingLike={isPendingLike} onClickLike={onClickLike} /></WillRender>
+          <WillRender when={hasFilteredData}>Filtered data found</WillRender>
         </WillRender>
         </WillRender>
         <WillRender when={!hasSearch}>
           <WillRender when={!hasValidData}>No data found</WillRender>
-          <WillRender when={hasValidData}><FilterList products={products} users={users} likeObject={likeObject} isPendingLike={isPendingLike} onClickLike={onClickLike} /></WillRender>
+          <WillRender when={hasValidData}>Valid data found</WillRender>
         </WillRender>
-      </WillRender>
+      </WillRender></div>
+      </div>
+        <div>
+        <FilterList products={filteredData} users={users} likeObject={likeObject} isPendingLike={isPendingLike} onClickLike={onClickLike} />
+        </div>
     </div>
   );
 }
